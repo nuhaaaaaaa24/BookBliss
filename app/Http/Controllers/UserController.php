@@ -9,22 +9,19 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // Show Login Page
     public function showLogin()
     {
         return view('users.login');
     }
 
-    // Show Register Page
     public function showRegister()
     {
         return view('users.register');
     }
 
-    // REGISTER USER
+    // REGISTER
     public function register(Request $request)
     {
-        // Validate
         $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name'  => 'required|string|max:255',
@@ -32,63 +29,72 @@ class UserController extends Controller
             'password'   => 'required|confirmed|min:6',
         ]);
 
-        // Convert interests array to string
-        // Fix interests
-        $interestsArray = $request->input('interests', []); // default empty array
+        $interestsArray = $request->input('interests', []);
         if (!is_array($interestsArray)) {
-            $interestsArray = [$interestsArray]; // wrap single value
+            $interestsArray = [$interestsArray];
         }
-        $interests = count($interestsArray) > 0 ? implode(',', $interestsArray) : null;
 
-        // Create user
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name'  => $request->last_name,
             'email'      => $request->email,
             'password'   => Hash::make($request->password),
             'bio'        => $request->bio,
-            'interests'  => $interests,
+            'interests'  => implode(',', $interestsArray),
         ]);
 
-        // Auto login after register
         Auth::login($user);
 
-        // Redirect to home
         return redirect('/home');
     }
 
-    // LOGIN USER
+    // LOGIN
     public function login(Request $request)
     {
-        // Validate
-        $request->validate([
+        $credentials = $request->validate([
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required'
         ]);
 
-        // Attempt login
-        if (Auth::attempt($request->only('email', 'password'))) {
-            // Regenerate session (security)
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-
-            return redirect('/home');
+            return redirect()->intended('/home');
         }
 
-        // If failed
-        return back()->with('error', 'Invalid email or password');
+        return back()->withErrors([
+            'email' => 'Invalid credentials'
+        ]);
     }
 
-    // HOME PAGE
     public function home()
     {
         return view('home');
     }
 
-    // LOGOUT
+    // PROFILE
+    public function showProfile()
+    {
+        return view('users.profile', ['user' => Auth::user()]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'required|string|max:255',
+            'bio'        => 'nullable|string|max:1000',
+        ]);
+
+        $user->update($request->only('first_name', 'last_name', 'bio'));
+
+        return back()->with('success', 'Profile updated!');
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

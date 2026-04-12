@@ -5,7 +5,7 @@
     <title>Register</title>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
-<body>
+<body class="auth-page">
     <div class="container">
         <h2>Register</h2>
         <form id="registerForm" method="POST" action="{{ route('register') }}">

@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('challenges', function (Blueprint $table) {
             $table->id();
+
+            $table->string('name');
+            $table->text('goal');
+            $table->date('duration')->nullable();
+
+            $table->boolean('is_private')->default(false);
+
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
             $table->timestamps();
         });
     }

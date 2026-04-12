@@ -25,10 +25,3 @@ It is built as a social ecosystem for book lovers, combining community interacti
 - **Architecture:** MVC (Model–View–Controller)  
 
 ---
-
-## ⚙️ Project Setup
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/your-username/bookbliss.git
-cd bookbliss
