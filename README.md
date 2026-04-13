@@ -39,7 +39,6 @@ It is built as a social ecosystem for book lovers, combining community interacti
 ![Home Page](screenshots/homepage2.png)
 
 ### Bookshelf
-### Challenges
 ![Bookshelf](screenshots/addbook.png)
 ![Bookshelf](screenshots/bookshelf.png)
 
