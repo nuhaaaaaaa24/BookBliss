@@ -104,6 +104,15 @@ body.auth-page button:hover {
     background: #574fd6;
 }
 
+.error-message{
+    margin-top: 12px;
+    padding: 10px;
+    background: #e57373;
+    color: white;
+    border-radius: 5px;
+    font-size: 13px;
+}
+
 
 /* ============================================================
    3. GLOBAL COMPONENTS  –  shared across all dashboard pages
@@ -173,7 +182,7 @@ body.dashboard-page {
 }
 
 .topbar::before {
-    content: '"';
+    content: 'Read';
     position: absolute;
     right: 2.5rem;
     top: -1rem;

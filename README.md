@@ -25,3 +25,29 @@ It is built as a social ecosystem for book lovers, combining community interacti
 - **Architecture:** MVC (Model–View–Controller)  
 
 ---
+
+## 📸 Screenshots
+
+### Login Page
+![Login](screenshots/login.png)
+
+## Registration Page
+![Register](screenshots/register.png)
+
+### Home Page
+![Home Page](screenshots/homepage1.png)
+![Home Page](screenshots/homepage2.png)
+
+### Bookshelf
+### Challenges
+![Bookshelf](screenshots/addbook.png)
+![Bookshelf](screenshots/bookshelf.png)
+
+### Forum
+![Forum](screenshots/communityforum.png)
+
+### Challenges
+![Challenges](screenshots/challenges.png)
+
+### Profile
+![Challenges](screenshots/profile.png)

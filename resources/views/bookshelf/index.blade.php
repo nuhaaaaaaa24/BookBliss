@@ -26,7 +26,6 @@
 
     <header class="topbar">
         <h1>My Bookshelf</h1>
-        <p>{{ $books->count() }} {{ Str::plural('book', $books->count()) }} on your shelf</p>
     </header>
 
     @if(session('success'))
@@ -160,13 +159,6 @@
             </form>
         </div>
     </div>
-
-    <footer class="footer">
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit">Logout</button>
-        </form>
-    </footer>
 
     <script>
         const fab      = document.getElementById('openModal');

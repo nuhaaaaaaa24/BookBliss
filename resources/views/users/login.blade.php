@@ -10,6 +10,11 @@
 
 <div class="container">
     <h2>Login</h2>
+    @if($errors->has('login'))
+        <div class="error-message">
+            {{ $errors->first('login') }}
+        </div>
+    @endif
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
@@ -18,7 +23,6 @@
 
         <button type="submit">Login</button>
     </form>
-
     <div class="link">
         Don't have an account? <a href="{{ route('register') }}">Register</a>
     </div>

@@ -13,7 +13,7 @@
 
     <nav class="navbar">
         <div class="nav-left">
-            <span class="logo">📖 BookBliss</span>
+            <span class="logo">BookBliss</span>
         </div>
         <div class="nav-links">
             <a href="{{ route('home') }}" class="active">Home</a>
@@ -27,7 +27,6 @@
 
     <header class="topbar home-topbar">
         <h1>Welcome back, {{ auth()->user()->first_name }}!</h1>
-        <p>Here's what's been happening in your reading world</p>
     </header>
 
     <main class="home-main">

@@ -75,8 +75,8 @@ class UserController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Invalid credentials'
-        ]);
+        'login' => 'Invalid email or password'
+        ])->withInput();
     }
 
     // PROFILE
