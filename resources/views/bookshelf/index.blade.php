@@ -5,20 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Bookshelf – BookBliss</title>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/bookshelf.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
 <body class="dashboard-page">
 
-    {{-- ── Navbar (same as dashboard) ── --}}
     <nav class="navbar">
         <div class="nav-left">
             <span class="logo">📖 BookBliss</span>
         </div>
         <div class="nav-links">
             <a href="{{ route('home') }}">Home</a>
-            <a href="{{ route('bookshelf') }}">Bookshelf</a>
+            <a href="{{ route('bookshelf') }}" class="active">Bookshelf</a>
             <a href="{{ route('forum') }}">Forum</a>
             <a href="{{ route('challenges') }}">Challenges</a>
             <a href="{{ route('profile') }}">Profile</a>
@@ -26,23 +24,17 @@
     </nav>
     <hr>
 
-    {{-- ── Page Header ── --}}
-    <header class="topbar shelf-topbar">
-        <div class="topbar-text">
-            <h1>My Bookshelf</h1>
-            <p>{{ $books->count() }} {{ Str::plural('book', $books->count()) }} on your shelf</p>
-        </div>
+    <header class="topbar">
+        <h1>My Bookshelf</h1>
+        <p>{{ $books->count() }} {{ Str::plural('book', $books->count()) }} on your shelf</p>
     </header>
 
-    {{-- ── Flash Messages ── --}}
     @if(session('success'))
         <div class="flash flash--success">{{ session('success') }}</div>
     @endif
 
-    {{-- ── Bookshelf Grid ── --}}
     <main class="shelf-main">
 
-        {{-- Empty state --}}
         @if($books->isEmpty())
             <div class="shelf-empty">
                 <span class="shelf-empty__icon">📭</span>
@@ -53,7 +45,7 @@
                 @foreach($books as $book)
                     <article class="book-card {{ $book->status === 'reading' ? 'book-card--reading' : '' }}">
 
-                        {{-- Cover image --}}
+                        {{-- Cover --}}
                         <div class="book-card__cover-wrap">
                             @if($book->cover_image)
                                 <img src="{{ asset('storage/' . $book->cover_image) }}"
@@ -65,7 +57,6 @@
                                 </div>
                             @endif
 
-                            {{-- Reading badge --}}
                             @if($book->status === 'reading')
                                 <span class="book-card__badge">Reading</span>
                             @elseif($book->status === 'done')
@@ -90,6 +81,22 @@
                             @else
                                 <span class="book-card__done-label">Finished 🎉</span>
                             @endif
+
+                            <form method="POST" action="{{ route('books.delete', $book->id) }}" id="deleteForm{{ $book->id }}">
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="button" class="btn-delete" onclick="showDelete({{ $book->id }})">
+                                    Delete
+                                </button>
+
+                                <div id="confirmBox{{ $book->id }}" class="delete-confirm" style="display:none; margin-top:10px;">
+                                    <span>Delete this book?</span>
+
+                                    <button type="submit" class="btn-confirm-yes">Yes</button>
+                                    <button type="button" class="btn-confirm-no" onclick="hideDelete({{ $book->id }})">No</button>
+                                </div>
+                            </form>
                         </div>
 
                     </article>
@@ -98,10 +105,8 @@
         @endif
     </main>
 
-    {{-- ── Add Book FAB ── --}}
     <button class="fab" id="openModal" aria-label="Add a new book">+</button>
 
-    {{-- ── Add Book Modal ── --}}
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
 
@@ -119,38 +124,25 @@
 
                 <div class="form-group">
                     <label for="title">Book Name</label>
-                    <input type="text"
-                           id="title"
-                           name="title"
+                    <input type="text" id="title" name="title"
                            placeholder="e.g. The Name of the Wind"
-                           required
-                           value="{{ old('title') }}">
-                    @error('title')
-                        <span class="form-error">{{ $message }}</span>
-                    @enderror
+                           required value="{{ old('title') }}">
+                    @error('title')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
                     <label for="author">Author</label>
-                    <input type="text"
-                           id="author"
-                           name="author"
+                    <input type="text" id="author" name="author"
                            placeholder="e.g. Patrick Rothfuss"
-                           required
-                           value="{{ old('author') }}">
-                    @error('author')
-                        <span class="form-error">{{ $message }}</span>
-                    @enderror
+                           required value="{{ old('author') }}">
+                    @error('author')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
                     <label for="cover_image">Cover Image</label>
                     <div class="file-upload" id="fileUploadArea">
-                        <input type="file"
-                               id="cover_image"
-                               name="cover_image"
-                               accept="image/*"
-                               class="file-upload__input">
+                        <input type="file" id="cover_image" name="cover_image"
+                               accept="image/*" class="file-upload__input">
                         <div class="file-upload__ui" id="fileUploadUI">
                             <span class="file-upload__icon">📷</span>
                             <span class="file-upload__text">Click to upload a cover</span>
@@ -158,9 +150,7 @@
                         </div>
                         <img id="coverPreview" class="file-upload__preview" src="" alt="Cover preview">
                     </div>
-                    @error('cover_image')
-                        <span class="form-error">{{ $message }}</span>
-                    @enderror
+                    @error('cover_image')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="modal__footer">
@@ -171,14 +161,21 @@
         </div>
     </div>
 
+    <footer class="footer">
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit">Logout</button>
+        </form>
+    </footer>
+
     <script>
-        const fab         = document.getElementById('openModal');
-        const overlay     = document.getElementById('modalOverlay');
-        const closeBtn    = document.getElementById('closeModal');
-        const cancelBtn   = document.getElementById('cancelModal');
-        const fileInput   = document.getElementById('cover_image');
-        const preview     = document.getElementById('coverPreview');
-        const fileUI      = document.getElementById('fileUploadUI');
+        const fab      = document.getElementById('openModal');
+        const overlay  = document.getElementById('modalOverlay');
+        const closeBtn = document.getElementById('closeModal');
+        const cancelBtn= document.getElementById('cancelModal');
+        const fileInput= document.getElementById('cover_image');
+        const preview  = document.getElementById('coverPreview');
+        const fileUI   = document.getElementById('fileUploadUI');
 
         const openModal  = () => { overlay.classList.add('is-open'); document.body.style.overflow = 'hidden'; };
         const closeModal = () => { overlay.classList.remove('is-open'); document.body.style.overflow = ''; };
@@ -188,7 +185,6 @@
         cancelBtn.addEventListener('click', closeModal);
         overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 
-        // Image preview
         fileInput.addEventListener('change', () => {
             const file = fileInput.files[0];
             if (!file) return;
@@ -201,10 +197,16 @@
             reader.readAsDataURL(file);
         });
 
-        // Re-open modal if validation failed
         @if($errors->any())
             openModal();
         @endif
+        function showDelete(id) {
+            document.getElementById('confirmBox' + id).style.display = 'block';
+        }
+
+        function hideDelete(id) {
+            document.getElementById('confirmBox' + id).style.display = 'none';
+        }
     </script>
 </body>
 </html>

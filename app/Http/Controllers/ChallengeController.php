@@ -11,7 +11,11 @@ class ChallengeController extends Controller
 {
     public function index()
     {
-        $challenges = Challenge::latest()->get();
+        $challenges = Challenge::where(function ($query) {
+            $query->where('is_private', false)
+                ->orWhere('user_id', auth()->id());
+        })->latest()->get();
+
         return view('challenges.index', compact('challenges'));
     }
 
@@ -29,7 +33,8 @@ class ChallengeController extends Controller
             'goal' => $request->goal,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
-            'user_id' => Auth::id(),
+            'is_private' => $request->has('is_private'),
+            'user_id' => auth()->id(),
         ]);
 
         return back()->with('success', 'Challenge created!');
@@ -39,5 +44,23 @@ class ChallengeController extends Controller
     {
         $challenge->participants()->attach(Auth::id());
         return back();
+    }
+
+    public function destroy(Challenge $challenge)
+    {
+        if ($challenge->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $challenge->delete();
+
+        return back()->with('success', 'Challenge deleted');
+    }
+
+    public function leave(Challenge $challenge)
+    {
+        $challenge->participants()->detach(auth()->id());
+
+        return back()->with('success', 'You left the challenge');
     }
 }

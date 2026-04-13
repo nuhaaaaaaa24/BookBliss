@@ -32,9 +32,12 @@ class BookshelfController extends Controller
             'author' => $request->author,
             'cover_image' => $path,
             'status' => 'reading',
+
+            // 🔥 THIS IS WHAT YOU ARE MISSING
+            'user_id' => auth()->id(),
         ]);
 
-        return redirect()->route('bookshelf')->with('success', 'Book added 📚');
+        return back()->with('success', 'Book added!');
     }
 
     public function markDone(Book $book)
@@ -42,5 +45,12 @@ class BookshelfController extends Controller
         $book->update(['status' => 'done']);
 
         return back()->with('success', 'Book completed 🎉');
+    }
+    
+    public function destroy(Book $book)
+    {
+        $book->delete();
+
+        return back()->with('success', 'Book deleted 🗑️');
     }
 }

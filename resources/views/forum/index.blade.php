@@ -80,6 +80,39 @@
                                 <span class="like-count">{{ $post->likes->count() }}</span>
                             </button>
                         </form>
+
+                        <button type="button"
+                                class="btn-comment-toggle"
+                                onclick="toggleComments({{ $post->id }})">
+                            💬 {{ $post->comments->count() }}
+                        </button>
+                    </div>
+                    {{-- Comments Section --}}
+                    <div class="post-comments" id="comments{{ $post->id }}" style="display:none;">
+
+                        {{-- Add comment form --}}
+                        <form method="POST" action="{{ route('posts.comment', $post->id) }}" class="comment-form">
+                            @csrf
+                            <input type="text" name="body" placeholder="Write a comment..." required>
+                            <button type="submit">Send</button>
+                        </form>
+
+                        {{-- Comments list --}}
+                        <div class="comments-list">
+
+                            @foreach($post->comments as $comment)
+                                <div class="comment">
+                                    <span class="comment-user">
+                                        {{ $comment->user->first_name }}
+                                    </span>
+                                    <span class="comment-body">
+                                        {{ $comment->body }}
+                                    </span>
+                                </div>
+                            @endforeach
+
+                        </div>
+
                     </div>
 
                 </article>
@@ -92,13 +125,17 @@
         </section>
 
     </main>
+    <script>
+        function toggleComments(id) {
+            const box = document.getElementById('comments' + id);
 
-    <footer class="footer">
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit">Logout</button>
-        </form>
-    </footer>
+            if (!box) return;
 
+            box.style.display =
+                (box.style.display === 'none' || box.style.display === '')
+                ? 'block'
+                : 'none';
+        }
+    </script>
 </body>
 </html>

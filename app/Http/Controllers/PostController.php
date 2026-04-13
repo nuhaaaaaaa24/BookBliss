@@ -41,4 +41,17 @@ class PostController extends Controller
 
         return back();
     }
+    public function comment(Request $request, Post $post)
+    {
+        $request->validate([
+            'body' => 'required|string'
+        ]);
+
+        $post->comments()->create([
+            'body' => $request->body,
+            'user_id' => auth()->id()
+        ]);
+
+        return back();
+    }
 }

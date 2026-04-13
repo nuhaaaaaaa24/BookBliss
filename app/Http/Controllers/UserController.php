@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Book;
+use App\Models\Post;
+use App\Models\Challenge;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,6 +20,16 @@ class UserController extends Controller
     public function showRegister()
     {
         return view('users.register');
+    }
+
+    // HOME
+    public function home()
+    {
+        $books = Book::latest()->get();
+        $posts = Post::latest()->get();
+        $challenges = Challenge::latest()->get();
+
+        return view('home', compact('books', 'posts', 'challenges'));
     }
 
     // REGISTER
@@ -66,17 +79,12 @@ class UserController extends Controller
         ]);
     }
 
-    public function home()
-    {
-        return view('home');
-    }
-
     // PROFILE
     public function showProfile()
     {
         return view('users.profile', ['user' => Auth::user()]);
     }
-
+    
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
@@ -85,11 +93,22 @@ class UserController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name'  => 'required|string|max:255',
             'bio'        => 'nullable|string|max:1000',
+            'interests'  => 'nullable|string'
         ]);
 
-        $user->update($request->only('first_name', 'last_name', 'bio'));
+        $user->update([
+            'first_name' => $request->first_name,
+            'last_name'  => $request->last_name,
+            'bio'        => $request->bio,
+            'interests'  => $request->interests,
+        ]);
 
-        return back()->with('success', 'Profile updated!');
+        return redirect()->route('profile')->with('success', 'Profile updated!');
+    }
+    public function editProfile()
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        return view('users.edit-profile', compact('user'));
     }
 
     public function logout(Request $request)

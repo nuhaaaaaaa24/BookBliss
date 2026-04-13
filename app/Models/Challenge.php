@@ -9,7 +9,8 @@ class Challenge extends Model
     protected $fillable = [
         'name',
         'goal',
-        'duration',
+        'start_date',
+        'end_date',
         'is_private',
         'user_id'
     ];
@@ -22,5 +23,9 @@ class Challenge extends Model
     public function participants()
     {
         return $this->belongsToMany(User::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

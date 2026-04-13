@@ -49,6 +49,11 @@
                         <div class="challenge-card__ribbon"></div>
 
                         <div class="challenge-card__body">
+                            @if($challenge->is_private)
+                                <span class="badge-private">🔒 Private</span>
+                            @else
+                                <span class="badge-public">🌍 Public</span>
+                            @endif
                             <h3 class="challenge-card__name">{{ $challenge->name }}</h3>
                             <p class="challenge-card__goal">{{ $challenge->goal }}</p>
                         </div>
@@ -65,9 +70,12 @@
                             </div>
                             <div class="meta-item">
                                 <span class="meta-icon">⏳</span>
-                                @php $daysLeft = now()->diffInDays(\Carbon\Carbon::parse($challenge->end_date), false); @endphp
-                                @if($daysLeft > 0)
-                                    <span>{{ $daysLeft }} days left</span>
+                                @php
+                                    $monthsLeft = floor(now()->diffInMonths(\Carbon\Carbon::parse($challenge->end_date), false));
+                                @endphp
+
+                                @if($monthsLeft > 0)
+                                    <span>{{ $monthsLeft }} {{ $monthsLeft == 1 ? 'month' : 'months' }} left</span>
                                 @else
                                     <span class="meta-ended">Ended</span>
                                 @endif
@@ -75,17 +83,69 @@
                         </div>
 
                         <div class="challenge-card__footer">
-                            @if($challenge->participants->contains(auth()->id()))
-                                <span class="btn-joined">Joined ✓</span>
-                            @else
-                                <form method="POST" action="{{ route('challenges.join', $challenge->id) }}">
-                                    @csrf
-                                    <button type="submit" class="btn-join">Join Challenge</button>
-                                </form>
-                            @endif
+
+                            {{-- CREATOR --}}
                             @if($challenge->user_id === auth()->id())
-                                <span class="badge-creator">You created this</span>
+
+                                <form method="POST"
+                                    action="{{ route('challenges.delete', $challenge->id) }}"
+                                    id="deleteChallenge{{ $challenge->id }}">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="button"
+                                            class="btn-delete"
+                                            onclick="showDeleteChallenge({{ $challenge->id }})">
+                                        Delete
+                                    </button>
+
+                                    <div id="confirmChallenge{{ $challenge->id }}"
+                                        class="delete-confirm"
+                                        style="display:none;">
+                                        <span>Delete this challenge?</span>
+
+                                        <button type="submit" class="btn-confirm-yes">Yes</button>
+                                        <button type="button"
+                                                class="btn-confirm-no"
+                                                onclick="hideDeleteChallenge({{ $challenge->id }})">
+                                            No
+                                        </button>
+                                    </div>
+                                </form>
+
+                            @else
+
+                                {{-- NON-CREATOR USERS ONLY --}}
+
+                                @if($challenge->is_private)
+
+                                    {{-- PRIVATE CHALLENGE --}}
+                                    <span class="locked-text">🔒 Private Challenge</span>
+
+                                @else
+
+                                    {{-- PUBLIC CHALLENGE --}}
+                                    @if($challenge->participants->contains(auth()->id()))
+
+                                        <form method="POST" action="{{ route('challenges.leave', $challenge->id) }}">
+                                            @csrf
+                                            <button type="submit" class="btn-leave">Leave</button>
+                                        </form>
+
+                                    @else
+
+                                        <form method="POST" action="{{ route('challenges.join', $challenge->id) }}">
+                                            @csrf
+                                            <button type="submit" class="btn-join">Join Challenge</button>
+                                        </form>
+
+                                    @endif
+
+                                @endif
+
                             @endif
+
                         </div>
 
                     </article>
@@ -135,16 +195,15 @@
                     <button type="button" class="btn-cancel" id="cancelModal">Cancel</button>
                     <button type="submit" class="btn-submit">Create Challenge</button>
                 </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="is_private" value="1">
+                        Private Challenge 🔒
+                    </label>
+                </div>
             </form>
         </div>
     </div>
-
-    <footer class="footer">
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit">Logout</button>
-        </form>
-    </footer>
 
     <script>
         const fab=document.getElementById('openModal'),overlay=document.getElementById('modalOverlay'),
@@ -162,6 +221,13 @@
         document.getElementById('end_date').min=this.value;
         });
         @if($errors->any()) open(); @endif
+        function showDeleteChallenge(id) {
+            document.getElementById('confirmChallenge' + id).style.display = 'block';
+        }
+
+        function hideDeleteChallenge(id) {
+            document.getElementById('confirmChallenge' + id).style.display = 'none';
+        }
     </script>
 </body>
 </html>

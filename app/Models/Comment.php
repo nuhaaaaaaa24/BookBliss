@@ -4,15 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Book extends Model
+class Comment extends Model
 {
-    protected $fillable = [
-        'title',
-        'author',
-        'cover_image',
-        'status',
-        'user_id'
-    ];
+    protected $fillable = ['body', 'user_id', 'post_id'];
 
     public function user()
     {
